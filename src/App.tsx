@@ -2,9 +2,11 @@ import { useState } from 'react'
 import './App.css'
 
 import {HeaderActions} from "./widgets/Header-Actions/HeaderActions";
-import {SearchBar} from "./shared/ui/SearchBar/SearchBar"
+import {SearchBar} from "./shared/ui/SearchBar/SearchBar";
+import { PromoImage } from "./shared/ui/PromoImage/PromoImage";
+import { Logo } from "./shared/ui/Logo/Logo";
 
-import { ConfigProvider, Button, theme, Switch, Space, Row } from 'antd';
+import { ConfigProvider,theme, Space } from 'antd';
 
 
 
@@ -25,7 +27,13 @@ function App() {
     >
       
       <HeaderActions dark={dark} setDark={setDark}/>
-      <SearchBar/>
+
+      <Logo/>
+      
+      <Space direction="vertical">
+        <PromoImage/>
+        <SearchBar/>
+      </Space>
     
     </ConfigProvider>
     </>
