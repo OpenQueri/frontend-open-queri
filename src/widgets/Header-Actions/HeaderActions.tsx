@@ -1,8 +1,8 @@
 
-import { Setting } from "./../../shared/ui/Setting/setting";
+import { Setting } from "../../shared/ui/Setting/Setting";
 import { Info } from "./../../shared/ui/Info/Info";
 import { Space } from 'antd';
-import './Header-actions.css'
+import './HeaderActions.css'
 
 type Props = {
   dark: boolean;

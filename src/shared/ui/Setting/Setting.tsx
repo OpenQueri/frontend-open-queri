@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { Drawer, Space } from 'antd';
-import { SwitcherTheme } from "./../Theme_switcher/Switcher";
+import { SwitcherTheme } from "../ThemeSwitcher/Switcher";
 
 type Props = {
   dark: boolean;
