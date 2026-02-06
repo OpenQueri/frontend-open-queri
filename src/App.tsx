@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 
 import {HeaderActions} from "./widgets/Header-Actions/HeaderActions";
+import {SearchBar} from "./shared/ui/SearchBar/SearchBar"
 
 import { ConfigProvider, Button, theme, Switch, Space, Row } from 'antd';
 
@@ -24,7 +25,7 @@ function App() {
     >
       
       <HeaderActions dark={dark} setDark={setDark}/>
-      
+      <SearchBar/>
     
     </ConfigProvider>
     </>
