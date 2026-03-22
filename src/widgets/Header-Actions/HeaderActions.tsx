@@ -1,6 +1,6 @@
 
-import { Setting } from "../../shared/ui/Setting/Setting";
-import { Info } from "./../../shared/ui/Info/Info";
+import { Setting } from "../../components/Setting/Setting";
+import { Info } from "../../components/Info/Info";
 import { Space } from 'antd';
 import './HeaderActions.css'
 
