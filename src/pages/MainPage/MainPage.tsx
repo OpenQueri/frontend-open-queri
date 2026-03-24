@@ -30,9 +30,10 @@ export const MainPage = () => {
 
       <HeaderActions dark={dark} setDark={setDark}/>
       <Logo/>
-      <Space direction="vertical">
+
+      <div className='flex justify-center items-center h-screen w-screen'>
         <SearchBar/>
-      </Space>
+      </div>
       
     </ConfigProvider>
   )
