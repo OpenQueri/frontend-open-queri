@@ -1,40 +1,36 @@
 @import "tailwindcss";
-#root {
-  width: 100%;
-}
+@import "@heroui/styles";
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
+/* 
+   В Tailwind v4 и HeroUI v3 нам не нужно вручную прописывать цвета в :root.
+   Библиотека сама создаст их при импорте @heroui/styles.
+*/
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+@layer base {
+  * {
+    @apply border-border; /* Чтобы границы HeroUI работали корректно */
+    box-sizing: border-box;
   }
-  to {
-    transform: rotate(360deg);
-  }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  body {
+    margin: 0;
+    /* 
+       ВМЕСТО background: #fff пишем системные классы.
+       Они сами подхватят изменения из ThemeCustomizer и смену темы.
+    */
+    @apply bg-background text-foreground antialiased;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+html, body {
+  background-color: #09090b;
+  color: white;
+  color-scheme: dark;
 }

@@ -1,10 +1,34 @@
 <!doctype html>
-<html lang="en">
+<html lang="uk" class="dark" style="background-color: #09090b;">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/media/logo/logoCropped.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OpenQwery</title>
+    
+    <title>OpenQueri</title>
+
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('theme');
+          const supportDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (theme === 'dark' || (!theme && supportDark)) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.backgroundColor = '#09090b';
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <style>
+      body {
+        background-color: #09090b !important;
+        margin: 0;
+      }
+      #root {
+        background-color: #09090b;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

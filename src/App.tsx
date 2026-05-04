@@ -1,23 +1,33 @@
-import { useState } from 'react'
-import './App.css'
+import { Routes, Route, useLocation } from "react-router-dom";
+import Landing from "./pages/Landing/Landing";
+import Home from "./pages/Home/Home";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { Navbar } from "./components/Navbar";
+import { AnimatePresence } from "framer-motion";
+import { GlobalContextMenu } from "./components/CustomContextMenu"; 
+import {SearchPage} from "./pages/Search/Search";
 
-
-import { Routes, Route } from 'react-router-dom';
-import { MainPage } from "./pages/MainPage/MainPage.tsx";
-import { SearchPage } from "./pages/SearchPage/SearcPage.tsx";
-
-
-
-function App() {
-
-  
+export default function App() {
+  const location = useLocation();
 
   return (
-    <Routes>
-      <Route path="/" element={<MainPage />} />
-      <Route path="/search" element={<SearchPage />} />
-    </Routes>
+    <NextThemesProvider 
+      attribute="class" 
+      defaultTheme="dark" 
+      enableSystem={false}
+    >
+        <div className="min-h-screen bg-[#09090b] text-foreground transition-colors duration-500">
+          <Navbar />
+          <GlobalContextMenu/>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Home />} />
+              <Route path="/Landing" element={<Landing/>} />
+              <Route path="/Search" element={<SearchPage/>} />
+            </Routes>
+          </AnimatePresence>
+          
+        </div>
+    </NextThemesProvider>
   )
 }
-
-export default App
