@@ -11,8 +11,9 @@ import axios from 'axios';
  * Uses axios for the GET request with text as a query parameter.
  */
 export const SearchSite = async (text: string) => {
+  const host = window.location.hostname; 
   try {
-    const response = await axios.get('http://localhost:8000/search', {
+    const response = await axios.get(`http://${host}:8000/search`, {
       params: { text } 
     });
     
