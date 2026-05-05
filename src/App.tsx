@@ -7,6 +7,7 @@ import { AnimatePresence } from "framer-motion";
 import { GlobalContextMenu } from "./components/CustomContextMenu"; 
 import {SearchPage} from "./pages/Search/Search";
 import {Stats} from "./pages/Stats/Stats";
+import {AuthPage} from "./pages/Auth/Auth";
 
 export default function App() {
   const location = useLocation();
@@ -24,6 +25,7 @@ export default function App() {
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Home />} />
               <Route path="/Landing" element={<Landing/>} />
+              <Route path="/Auth" element={<AuthPage/>} />
               <Route path="/Search" element={<SearchPage/>} />
               <Route path="/Stats" element={<Stats/>} />
             </Routes>

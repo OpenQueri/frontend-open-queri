@@ -12,7 +12,7 @@ import {
 const NAVIGATION_CONFIG = [
   { id: 'home',    label: 'Landing',    path: '/Landing',  icon: <House className="size-6" /> },
   { id: 'search',  label: 'Home',       path: '/',         icon: <Magnifier className="size-6" /> },
-  { id: 'profile', label: 'About Us',   path: '/About',    icon: <Person className="size-6" /> },
+  { id: 'profile', label: 'About Us',   path: '/Auth',    icon: <Person className="size-6" /> },
   { id: 'stats',   label: 'Statistics', path: '/Stats',    icon: <ChartColumn className="size-6" /> },
 ];
 
