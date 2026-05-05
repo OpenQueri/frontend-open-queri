@@ -6,6 +6,7 @@ import { Navbar } from "./components/Navbar";
 import { AnimatePresence } from "framer-motion";
 import { GlobalContextMenu } from "./components/CustomContextMenu"; 
 import {SearchPage} from "./pages/Search/Search";
+import {Stats} from "./pages/Stats/Stats";
 
 export default function App() {
   const location = useLocation();
@@ -24,6 +25,7 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/Landing" element={<Landing/>} />
               <Route path="/Search" element={<SearchPage/>} />
+              <Route path="/Stats" element={<Stats/>} />
             </Routes>
           </AnimatePresence>
           

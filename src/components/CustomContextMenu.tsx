@@ -59,7 +59,6 @@ export const GlobalContextMenu = () => {
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
           style={{ top: menuData.y, left: menuData.x, position: 'fixed' }}
-          // "Ликвидное стекло": убрал градиент, оставил чистый прозрачный цвет и мощный блюр
           className="z-[99999] min-w-[260px] p-2 rounded-[22px] 
                      bg-black/40 backdrop-blur-[35px] 
                      border border-white/[0.12] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] 

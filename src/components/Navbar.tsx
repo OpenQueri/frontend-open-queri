@@ -12,8 +12,8 @@ import {
 const NAVIGATION_CONFIG = [
   { id: 'home',    label: 'Landing',    path: '/Landing',  icon: <House className="size-6" /> },
   { id: 'search',  label: 'Home',       path: '/',         icon: <Magnifier className="size-6" /> },
-  { id: 'profile', label: 'About Us',   path: '/about',    icon: <Person className="size-6" /> },
-  { id: 'stats',   label: 'Statistics', path: '/stats',    icon: <ChartColumn className="size-6" /> },
+  { id: 'profile', label: 'About Us',   path: '/About',    icon: <Person className="size-6" /> },
+  { id: 'stats',   label: 'Statistics', path: '/Stats',    icon: <ChartColumn className="size-6" /> },
 ];
 
 const IDLE_TIMEOUT = 5000;
