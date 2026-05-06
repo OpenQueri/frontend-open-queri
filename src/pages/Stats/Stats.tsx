@@ -1,10 +1,5 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { 
-    Card, 
-    Button, 
-    AlertDialog, 
-    Tooltip as HeroTooltip 
-} from "@heroui/react"; 
+import { Card, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "@heroui/react"; 
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Cpu, TrashBin, Pulse, ChartBar } from "@gravity-ui/icons";
 
@@ -23,6 +18,7 @@ export function Stats() {
     const [totalRequests, setTotalRequests] = useState(0);
     const [timeframe, setTimeframe] = useState(5);
     const [trend, setTrend] = useState<"up" | "down" | "none">("none");
+    const [isModalOpen, setIsModalOpen] = useState(false);
     
     const host = window.location.hostname;
     const socketRef = useRef<WebSocket | null>(null);
@@ -32,6 +28,7 @@ export function Stats() {
         setTotalRequests(0);
         setCurrentValue(0);
         localStorage.removeItem("openqueri_stats_v2");
+        setIsModalOpen(false);
     }, []);
 
     const connectWebSocket = useCallback(() => {
@@ -65,7 +62,7 @@ export function Stats() {
                     setTotalRequests(newTotal);
 
                     const newPoint: Statistics = {
-                        time: new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
                         activity: val,
                         timestamp: now,
                         change: isFinite(diffPercent) ? Number(diffPercent.toFixed(1)) : 0,
@@ -124,7 +121,7 @@ export function Stats() {
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className="bg-default-50 dark:bg-default-50/30 border border-default-200 p-8 rounded-[2.5rem]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-default-400 mb-2">Усього запитів</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-default-400 mb-2">Total Requests</p>
                     <div className="flex justify-between items-end">
                         <h2 className="text-4xl font-black tracking-tighter">{totalRequests.toLocaleString()}</h2>
                         <ChartBar className="size-6 text-default-200" />
@@ -132,7 +129,7 @@ export function Stats() {
                 </Card>
 
                 <Card className="bg-default-50 dark:bg-default-50/30 border border-default-200 p-8 rounded-[2.5rem]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-default-400 mb-2">Пропускна здатність</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-default-400 mb-2">Throughput</p>
                     <div className="flex justify-between items-end">
                         <h2 className="text-4xl font-black tracking-tighter text-foreground">
                             {(history[history.length - 1]?.rps ?? 0).toLocaleString()} <span className="text-sm text-default-300 italic font-medium">RPS</span>
@@ -140,50 +137,19 @@ export function Stats() {
                         <Cpu className="size-6 text-default-200" />
                     </div>
                 </Card>
+
+
             </div>
 
             <Card className="bg-default-50 dark:bg-default-50/20 border border-default-200 rounded-[3rem] p-8 h-[600px] flex flex-col relative overflow-hidden backdrop-blur-sm">
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">
                         <div className={`w-2 h-2 rounded-full ${trend === 'up' ? 'bg-blue-500 animate-ping' : 'bg-default-300'}`} />
-                        <h3 className="text-xs font-black uppercase italic tracking-[0.2em] opacity-70">Пульс у реальному часі & RPS</h3>
+                        <h3 className="text-xs font-black uppercase italic tracking-[0.2em] opacity-70">Real-time Pulse & RPS</h3>
                     </div>
-
-                    <AlertDialog>
-                        <Button isIconOnly variant="ghost" className="rounded-full">
-                            <TrashBin className="size-4" />
-                        </Button>
-                        <AlertDialog.Backdrop>
-                            <AlertDialog.Container>
-                                <AlertDialog.Dialog className="sm:max-w-[400px] font-sans">
-                                    <AlertDialog.CloseTrigger />
-                                    <AlertDialog.Header>
-                                        <AlertDialog.Icon status="danger" />
-                                        <AlertDialog.Heading>Очистити статистику?</AlertDialog.Heading>
-                                    </AlertDialog.Header>
-                                    <AlertDialog.Body>
-                                        <p>
-                                            Ви збираєтесь видалити всю накопичену статистику запитів. 
-                                            Цю дію <strong>неможливо скасувати</strong>.
-                                        </p>
-                                    </AlertDialog.Body>
-                                    <AlertDialog.Footer>
-                                        <Button slot="close" variant="tertiary" className="font-bold">
-                                            Скасувати
-                                        </Button>
-                                        <Button 
-                                            slot="close" 
-                                            variant="danger" 
-                                            className="font-bold"
-                                            onClick={clearAllData}
-                                        >
-                                            Видалити дані
-                                        </Button>
-                                    </AlertDialog.Footer>
-                                </AlertDialog.Dialog>
-                            </AlertDialog.Container>
-                        </AlertDialog.Backdrop>
-                    </AlertDialog>
+                    <Button isIconOnly variant="ghost" className="rounded-full" onClick={() => setIsModalOpen(true)}>
+                        <TrashBin className="size-4" />
+                    </Button>
                 </div>
 
                 <div className="flex-grow w-full space-y-4">
@@ -199,8 +165,8 @@ export function Stats() {
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
                                 <XAxis dataKey="time" hide />
                                 <YAxis hide domain={['auto', 'auto']} />
-                                <Tooltip labelClassName="text-black" contentStyle={{ borderRadius: '15px', border: 'none', fontSize: '10px', fontWeight: 'bold' }} />
-                                <Area type="monotone" dataKey="activity" name="Активність" stroke="#3b82f6" strokeWidth={3} fill="url(#colorLoad)" isAnimationActive={false} />
+                                <Tooltip contentStyle={{ borderRadius: '15px', border: 'none', fontSize: '10px', fontWeight: 'bold' }} />
+                                <Area type="monotone" dataKey="activity" stroke="#3b82f6" strokeWidth={3} fill="url(#colorLoad)" isAnimationActive={false} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -216,8 +182,8 @@ export function Stats() {
                                 </defs>
                                 <XAxis dataKey="time" hide />
                                 <YAxis hide domain={['auto', 'auto']} />
-                                <Tooltip labelClassName="text-black" contentStyle={{ borderRadius: '15px', border: 'none', fontSize: '10px', fontWeight: 'bold' }} />
-                                <Area type="stepAfter" dataKey="rps" name="Запитів/сек" stroke="#10b981" strokeWidth={2} fill="url(#colorRps)" isAnimationActive={false} />
+                                <Tooltip contentStyle={{ borderRadius: '15px', border: 'none', fontSize: '10px', fontWeight: 'bold' }} />
+                                <Area type="stepAfter" dataKey="rps" stroke="#10b981" strokeWidth={2} fill="url(#colorRps)" isAnimationActive={false} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -238,6 +204,32 @@ export function Stats() {
                     </div>
                 ))}
             </div>
+
+            {isModalOpen && (
+                <Modal isOpen={isModalOpen} onOpenChange={setIsModalOpen} className="dark:bg-zinc-900 border border-white/10">
+                    <div className="p-6">
+                        <ModalHeader className="font-black uppercase tracking-widest text-sm">Подтверждение</ModalHeader>
+                        <ModalBody className="py-4 text-default-500 text-sm">
+                            Вы точно хотите очистить всю накопленную статистику? Это действие необратимо.
+                        </ModalBody>
+                        <ModalFooter className="gap-3">
+                            <Button 
+                                variant="outline" 
+                                className="font-black uppercase text-[10px]"
+                                onClick={() => setIsModalOpen(false)}
+                            >
+                                Отмена
+                            </Button>
+                            <Button 
+                                className="bg-red-500 text-white font-black uppercase text-[10px] rounded-xl px-6"
+                                onClick={clearAllData}
+                            >
+                                Удалить
+                            </Button>
+                        </ModalFooter>
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 }
