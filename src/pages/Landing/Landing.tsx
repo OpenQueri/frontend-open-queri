@@ -29,10 +29,10 @@ export default function Landing() {
         </nav>
 
         <div className="relative z-10 flex flex-col items-center text-center px-4">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-[15vw] lg:text-[10rem] leading-[0.8] font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/20">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-[15vw] lg:text-[10rem] leading-[0.8] font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/20 select-none">
             OpenQueri
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="max-w-lg mt-6 text-default-400 italic">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="max-w-lg mt-6 text-default-400 italic select-none">
             Інший підхід. Енергія Rust.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-12">
@@ -66,7 +66,7 @@ export default function Landing() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[80px] -z-10" />
           
           {/* 3D Glass Logo */}
-          <div className="relative flex justify-center items-center">
+          <div className="relative hidden lg:flex flex justify-center items-center">
              <div className="absolute inset-0 bg-blue-500/10 blur-[100px] rounded-full" />
              <div className="relative w-full max-w-[350px] md:max-w-[450px] aspect-square">
                 <GlassLogoProvider is3D={true} width="100%" height="100%"> 
@@ -128,7 +128,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="lg:col-span-3 relative rounded-[2.5rem]  p-4 shadow-inner">
+          <div className="lg:col-span-3 hidden lg:flex relative rounded-[2.5rem]  p-4 shadow-inner">
              <SearchSimulation />
           </div>
         </div>
