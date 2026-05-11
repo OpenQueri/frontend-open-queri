@@ -20,8 +20,11 @@ import {
     ArrowRight,
 } from "@gravity-ui/icons";
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 
 export const authService = {
+    
   register: async (userData: any) => {
     const host = window.location.hostname;
     try {
@@ -46,14 +49,18 @@ export const authService = {
 login: async (credentials: any) => {
     const host = window.location.hostname;
     try {
-        const response = await axios.post(`http://${host}:8000/login`, credentials);
+        const response = await axios.post(
+            `http://${host}:8000/login`, 
+            credentials, 
+            { withCredentials: true } 
+        );
+        
         
         const backendData = response.data;
 
         if (backendData.success === false) {
             return { success: false, error: backendData.data };
         }
-
         return { success: true, data: backendData };
 
     } catch (error: any) {
@@ -70,6 +77,7 @@ import { StaticLogo } from "../../components/Logo/Logo";
 import { TermsModal } from "./TermsModal";
 
 export function AuthPage() {
+    
     const [isLogin, setIsLogin] = useState(true);
     const [showTerms, setShowTerms] = useState(false);
     const [termsAccepted, setTermsAccepted] = useState(false);
@@ -127,6 +135,10 @@ const handleSubmit = async () => {
                 status: "success", 
                 title: isLogin ? "Вхід виконано!" : "Реєстрація успішна!" 
             });
+
+            if (isLogin){
+                window.location.href = '/WorkspacePage';
+            }
             
             if (!isLogin) {
                 setUsername("");
