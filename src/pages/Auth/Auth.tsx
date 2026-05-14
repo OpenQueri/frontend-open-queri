@@ -77,6 +77,18 @@ import { StaticLogo } from "../../components/Logo/Logo";
 import { TermsModal } from "./TermsModal";
 
 export function AuthPage() {
+    useEffect(() => {
+        const checkUser = () => {
+
+        const token = localStorage.getItem("token_paseto");
+
+            if (token === "true") {
+                window.location.href = '/WorkspacePage';
+            }
+        };
+
+        checkUser();
+    }, []);
     
     const [isLogin, setIsLogin] = useState(true);
     const [showTerms, setShowTerms] = useState(false);
@@ -137,6 +149,7 @@ const handleSubmit = async () => {
             });
 
             if (isLogin){
+                localStorage.setItem("token_paseto", "true");
                 window.location.href = '/WorkspacePage';
             }
             
@@ -166,6 +179,8 @@ const handleSubmit = async () => {
         if (!termsAccepted) setShowTerms(true);
         else setTermsAccepted(false);
     };
+
+
 
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-8 relative overflow-hidden">

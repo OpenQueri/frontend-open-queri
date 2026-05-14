@@ -9,16 +9,31 @@ import {
   Grip, Xmark, Layers 
 } from "@gravity-ui/icons";
 
-const NAVIGATION_CONFIG = [
-  { id: 'home',    label: 'Landing',    path: '/Landing',  icon: <House className="size-6" /> },
-  { id: 'search',  label: 'Home',       path: '/',         icon: <Magnifier className="size-6" /> },
-  { id: 'profile', label: 'About Us',   path: '/Auth',    icon: <Person className="size-6" /> },
-  { id: 'stats',   label: 'Statistics', path: '/Stats',    icon: <ChartColumn className="size-6" /> },
-];
+
+const getAuthRoute = (): { path: string; label: string } => {
+  const token = localStorage.getItem("token_paseto");
+  
+  if (token === "true") {
+    return { path: "/WorkspacePage", label: "My Profile" };
+  }
+  
+  return { path: "/Auth", label: "Login / About Us" };
+};
+
 
 const IDLE_TIMEOUT = 5000;
 
 export const Navbar = () => {
+
+  const autData = getAuthRoute();
+
+  const NAVIGATION_CONFIG = [
+    { id: 'home',    label: 'Landing',    path: '/Landing',  icon: <House className="size-6" /> },
+    { id: 'search',  label: 'Home',       path: '/',         icon: <Magnifier className="size-6" /> },
+    { id: 'profile', label: autData.label,   path: autData.path,    icon: <Person className="size-6" /> },
+    { id: 'stats',   label: 'Statistics', path: '/Stats',    icon: <ChartColumn className="size-6" /> },
+  ];
+
   const { theme, setTheme } = useTheme();
   const location = useLocation();
   const constraintsRef = useRef<HTMLDivElement>(null);
@@ -31,13 +46,11 @@ export const Navbar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 1. БАЗОВАЯ ОРИЕНТАЦИЯ: Горизонтально по умолчанию
   const [isVertical, setIsVertical] = useState(() => {
     const saved = localStorage.getItem("nav-v4-is-vertical");
     return saved !== null ? JSON.parse(saved) : false; 
   });
 
-  // 2. БАЗОВАЯ ПОЗИЦИЯ: Центр-Низ при первом запуске
   const getInitialPos = () => {
     const saved = localStorage.getItem("nav-v4-offset");
     if (saved) return JSON.parse(saved);
@@ -69,7 +82,6 @@ export const Navbar = () => {
     return () => { if (idleTimerRef.current) clearTimeout(idleTimerRef.current); };
   }, [resetIdleTimer, location.pathname]);
 
-  // Функция для идеального выравнивания (вызывается при смене ориентации)
   const applyPerfectPosition = (vertical: boolean, immediate = false) => {
     if (navRef.current) {
       const navW = navRef.current.offsetWidth;
@@ -99,7 +111,6 @@ export const Navbar = () => {
 
   useEffect(() => {
     setIsReady(true);
-    // Если в сторадже пусто, фиксируем позицию центр-низ как "стартовую"
     if (!localStorage.getItem("nav-v4-offset")) {
       setTimeout(() => applyPerfectPosition(isVertical, true), 30);
     }
@@ -108,7 +119,6 @@ export const Navbar = () => {
   const handleOrientationChange = (vertical: boolean) => {
     setIsVertical(vertical);
     localStorage.setItem("nav-v4-is-vertical", JSON.stringify(vertical));
-    // Ждем микротик, чтобы DOM обновил размеры перед расчетом центра
     setTimeout(() => applyPerfectPosition(vertical), 50);
   };
 
@@ -141,7 +151,7 @@ export const Navbar = () => {
           height: isCollapsed ? "64px" : "auto",
           borderRadius: isCollapsed ? "100px" : "3rem",
         }}
-        initial={false} // Важно: предотвращает анимацию из 0,0 при маунте
+        initial={false}
         transition={{ type: "spring", damping: 20, stiffness: 150 }}
         className="fixed top-0 left-0 pointer-events-auto flex items-center gap-2 p-3 bg-zinc-900/85 backdrop-blur-2xl border border-white/10 shadow-2xl z-[9999] touch-none overflow-hidden"
       >

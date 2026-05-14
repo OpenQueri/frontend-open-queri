@@ -98,7 +98,6 @@ export const GlobalContextMenu = () => {
 
           <Divider />
 
-          {/* Блок подсказок */}
           <div className="space-y-0.5">
             <MenuItem 
               icon={<Star className="size-4" />} 

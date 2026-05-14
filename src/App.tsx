@@ -8,7 +8,7 @@ import { GlobalContextMenu } from "./components/CustomContextMenu";
 import {SearchPage} from "./pages/Search/Search";
 import {Stats} from "./pages/Stats/Stats";
 import {AuthPage} from "./pages/Auth/Auth";
-
+import { WorkspacePage } from "./pages/Workspace/Workspace";
 export default function App() {
   const location = useLocation();
 
@@ -28,6 +28,7 @@ export default function App() {
               <Route path="/Auth" element={<AuthPage/>} />
               <Route path="/Search" element={<SearchPage/>} />
               <Route path="/Stats" element={<Stats/>} />
+              <Route path="/WorkspacePage" element={<WorkspacePage/>} />              
             </Routes>
           </AnimatePresence>
           
