@@ -49,10 +49,7 @@ export function WorkspacePage() {
     };
 
     const [sites, setSites] = useState<TrackedSite[]>([
-        { id: "3", url: "https://example.com", status: "review", submittedBy: "Kirill", lastUpdate: "Щойно" },
-        { id: "1", url: "https://example.com", status: "review", submittedBy: "Kirill", lastUpdate: "Щойно" },
-        { id: "2", url: "https://openqueri.io", status: "indexed", submittedBy: "System", lastUpdate: "1 день тому" },
-        { id: "0", url: "https://exdfdample.com", status: "review", submittedBy: "Kirill", lastUpdate: "Щойно" },
+
 
     ]);
 
@@ -64,6 +61,11 @@ export function WorkspacePage() {
 
         ws.onopen = () => {
             console.log("Connected ✅");
+            const updateSite = {
+                type: "UPDATE_SITE"
+            }
+            SendWS(updateSite);
+
         };
 
         ws.onmessage = (event) => {
@@ -78,6 +80,7 @@ export function WorkspacePage() {
                 if (data.username){
                     setUsername(data.username);
                 }
+
                 if (data.role){
                     setRoleText(data.role);
                     if(data.role == "User"){
@@ -87,17 +90,44 @@ export function WorkspacePage() {
                         setRole('admin');
                     }
                 }
-                if (data.arr_quesion){
 
-                    const newSiteQuestion = {
-                        id: Date.now(),
-                        url: "dsfsdfsd",
-                        status: "review",
-                        submittedBy: "Petux",
-                        lastUpdate: "Щойно",
-                    };
+                if (data.type){
+
+                    if (data.type == "TrackedSite"){
+                        const newSiteQuestion: TrackedSite = {
+                            id: Date.now().toString(),
+                            url: data.url.toString(),
+                            status: data.status.toString(),
+                            submittedBy: "Petux".toString(),
+                            lastUpdate: data.lastUpdate.toString(),
+                        };
+
+                        setSites(prev => [newSiteQuestion, ...prev]);
+                        setUrl("");
+                    }   
+                    if (data.type == "UPDATE_PENDING"){
+
+                        console.log(data.type);
+                        console.log(data.status);
+                        console.log(data.id);
+
+                        setSites(prev => prev.map(s => s.id === data.id ? { ...s, status: data.status as const } : s));
+
+                    
+                    }                
 
                 }
+                if (data.Error){
+                    if (data.Error == "token_no_verify"){
+                        console.log("token no verify");
+                        localStorage.setItem("token_paseto", "false");
+                        window.location.href = '/Auth';
+                    }
+                }
+
+
+
+
 
             } catch (e) {
                 console.error("Parse Error:", event.data);
@@ -119,13 +149,12 @@ export function WorkspacePage() {
 
     }, []);
 
-    const SendWS = (payload: any) =>{
-    if (socket.current?.readyState === WebSocket.OPEN) {
-        socket.current.send(JSON.stringify(payload));
-        console.log("Отправлено:", payload);
-    } else {
-        console.error("WebSocket Eror send json");
-    }
+    const SendWS = (payload: any) => {
+        if (socket.current?.readyState === WebSocket.OPEN) {
+            socket.current.send(JSON.stringify(payload));
+        } else {
+            console.error("WebSocket Eror send json");
+        }
     }
 
     const handleAddSite = () => {
@@ -135,13 +164,7 @@ export function WorkspacePage() {
         return;
     }
 
-    const newSite: TrackedSite = {
-        id: Date.now().toString(), 
-        url: url,
-        status: "review",
-        submittedBy: username,
-        lastUpdate: "Щойно"
-    };
+
 
     if (socket.current?.readyState === WebSocket.OPEN) {
         socket.current.send(JSON.stringify({ 
@@ -153,13 +176,18 @@ export function WorkspacePage() {
         console.error("WS is not open. State:", socket.current?.readyState);
     }
 
-    setSites(prev => [newSite, ...prev]);
+
     
     setUrl("");
 };
 
-    const approveSite = (id: string) => {
-        setSites(prev => prev.map(s => s.id === id ? { ...s, status: 'crawling' as const } : s));
+    const approveSite = (id: string, url: string) => {
+            const delete_url = {
+                type: "UPDATE_PENDING",
+                url: url,
+                id: id,
+            }
+            SendWS(delete_url);
     };
 
     return (
@@ -292,12 +320,12 @@ export function WorkspacePage() {
                                         <div className="w-8 h-px bg-blue-500/30" />
                                         <Clock size={14} /> Verification Queue
                                     </h3>
-                                    <span className="text-[10px] font-bold text-default-400 uppercase">Awaiting review: {sites.filter(s => s.status === 'review').length}</span>
+                                    <span className="text-[10px] font-bold text-default-400 uppercase">Awaiting pending: {sites.filter(s => s.status === 'review').length}</span>
                                 </div>
 
                                 <div className="space-y-4">
                                     <AnimatePresence mode="popLayout">
-                                        {sites.filter(s => s.status === 'review').map(site => (
+                                        {sites.filter(s => s.status === 'pending').map(site => (
                                             <motion.div 
                                                 key={site.id} 
                                                 layout
@@ -318,7 +346,7 @@ export function WorkspacePage() {
                                                 <div className="flex gap-3">
                                                     <Button 
                                                         variant="flat" 
-                                                        onPress={() => approveSite(site.id)} 
+                                                        onPress={() => approveSite(site.id, site.url)} 
                                                         className="bg-blue-600/10 text-blue-500 text-[10px] font-black rounded-xl hover:bg-blue-600 hover:text-white transition-all"
                                                     >
                                                         APPROVE
@@ -364,7 +392,15 @@ export function WorkspacePage() {
                                                     <p className="text-[10px] font-black text-default-400 uppercase tracking-widest leading-none mb-1">Status</p>
                                                     <p className={`text-[11px] font-black uppercase ${site.status === 'indexed' ? 'text-green-500' : 'text-blue-500'}`}>{site.status}</p>
                                                 </div>
-                                                <button className="p-2 text-default-300 hover:text-red-500 transition-colors">
+                                                <button
+                                                    onClick={async () => { 
+                                                        const delete_url = {
+                                                            type: "DELETE_URL",
+                                                            url: site.url,
+                                                        }
+                                                        SendWS(delete_url);
+                                                    }}
+                                                 className="p-2 text-default-300 hover:text-red-500 transition-colors">
                                                     <TrashBin size={18} />
                                                 </button>
                                             </div>
