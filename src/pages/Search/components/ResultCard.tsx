@@ -55,7 +55,7 @@ export const ResultCard = ({ title, link, index }: ResponseProps) => {
           <Button
             isIconOnly
             size="sm"
-            variant="flat" // 'flat' лучше смотрится на белом
+            variant="flat" 
             className="rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-blue-600 transition-colors"
             onPress={handleCopy}
           >

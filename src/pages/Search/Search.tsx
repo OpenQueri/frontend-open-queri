@@ -130,7 +130,7 @@ export function SearchPage() {
                             <ResultCard 
                                 key={index}
                                 title={item.title} 
-                                link={item.link} 
+                                link={item.url} 
                                 index={index}
                             />
                         ))}

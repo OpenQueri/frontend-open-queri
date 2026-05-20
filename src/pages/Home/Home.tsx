@@ -6,13 +6,13 @@ import { LiquidSearch } from "../../components/SearchBar/SearchBar";
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-[#020202] p-4 sm:p-6 overflow-hidden">
+    <main className="flex flex-col  items-center justify-center min-h-screen bg-[#020202] p-4 sm:p-6 overflow-hidden relative min-h-screen bg-background text-foreground">
   
       <div className="flex flex-col items-center mb-8 sm:mb-12 relative z-10 w-full">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }} 
           animate={{ opacity: 1, y: 0 }} 
-          className="text-5xl sm:text-[84px] font-semibold tracking-[-0.04em] text-white text-center select-none"
+          className="text-5xl sm:text-[84px] font-semibold tracking-[-0.04em]  text-center select-none"
         >
           OpenQueri<span className="text-blue-500">.</span>
         </motion.h1>
@@ -24,17 +24,17 @@ export default function Home() {
         <motion.p 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 0.2 }} 
-          className="hidden sm:block text-white text-xs tracking-[0.2em] uppercase font-light text-center select-none"
+          className="hidden sm:block  text-xs tracking-[0.2em] uppercase font-light text-center select-none text-foreground"
         >
-          Натисніть <kbd className="bg-white/10 px-1.5 py-0.5 rounded border border-white/20 text-[10px] mx-1 select-none" >Enter</kbd> щоб знайти інформацію
+          Натисніть <kbd className="text-foreground bg-white/10 px-1.5 py-0.5 rounded border border-white/20 text-[10px] mx-1 select-none" >Enter</kbd> щоб знайти інформацію
         </motion.p>
 
         <motion.p 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 0.4 }} 
-          className="block sm:hidden text-white text-[10px] tracking-[0.1em] uppercase font-light text-center px-6 leading-relaxed select-none"
+          className="block sm:hidden  text-[10px] tracking-[0.1em] uppercase font-light text-center px-6 leading-relaxed select-none text-foreground"
         >
-          Введіть запит та натисніть на <span className="text-blue-400 select-none">стрілочку</span>
+          Введіть запит та натисніть на <span className="text-foreground text-blue-400 select-none">стрілочку</span>
         </motion.p>
       </div>
 

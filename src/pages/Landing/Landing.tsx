@@ -1,8 +1,8 @@
 import { Button } from "@heroui/react";
-import { LogoGithub, ArrowRight, Cpu, Code, ShieldCheck, ChevronsUpWide, StarFill } from "@gravity-ui/icons";
+import { LogoGithub, ArrowRight, Cpu, Code, ShieldCheck, ChevronsUpWide, StarFill, Link} from "@gravity-ui/icons";
 import { motion } from "framer-motion";
 import { SearchSimulation } from "./components/SearchSimulation";
-
+import { useNavigate } from "react-router-dom";
 import { GlassLogoProvider } from '../../components/Logo/GlassLogoScene';
 import { StaticLogo } from '../../components/Logo/Logo';
 
@@ -13,6 +13,10 @@ export default function Landing() {
   };
 
   const tickerWords = ["Безпека від Rust", "Відкритий код", "Приватність", "Жодних трекерів", "OpenQueri"];
+
+  const navigate = useNavigate();
+
+  
 
   return (
     <div className="relative min-h-screen bg-background text-foreground selection:bg-primary/20 scroll-smooth overflow-x-hidden flex flex-col transition-colors duration-500">
@@ -82,7 +86,7 @@ export default function Landing() {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-500">Core Architecture</span>
             </div>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9]">
-              Глобальна підтримка 30+ мов. <br />
+              Глобальна підтримка 100+ мов. <br />
               <span className="text-default-400">Локальна безпека.</span>
             </h2>
 
@@ -94,13 +98,18 @@ export default function Landing() {
                   <div className="w-2.5 h-2.5 rounded-full bg-orange-500/20" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/20" />
                 </div>
-                <p className="text-blue-400 mb-2">// Static PHF Map for indexing</p>
+                <p className="text-blue-400 mb-2">// Підтримка 100+ мов</p>
                 <pre className="text-gray-300 leading-relaxed overflow-x-auto">
-                  <code>{`static LANGUAGES: phf::Map<&str, &str> = phf_map!(
-    "ukr" => "ukrainian",
-    "eng" => "english",
-    "deu" => "german"
-);`}</code>
+                  <code>{`afr, sqi, amh, ara, hye, asm, aze, eus, ben, bos,
+bre, bul, mya, cat, ceb, zho, hrv, ces, dan, nld,
+eng, epo, est, tgl, fin, fra, glg, kat, deu, ell,
+guj, hat, hau, heb, hin, hun, isl, ibo, ind, gle,
+ita, jpn, jav, kan, kaz, khm, kor, kur, kgz, lao,
+lat, lav, lit, ltz, mkd, mlg, msa, mal, mlt, mar,
+mon, npi, nor, ory, orm, pus, fas, pol, por, pan,
+ron, san, gla, srp, sna, snd, sin, slk, slv, som,
+sot, spa, sun, swa, swe, tam, tel, tha, tur, ukr,
+urd, uzb, vie, cym, wln, wol, xho, yid, yor, zul`}</code>
                 </pre>
               </div>
             </div>
@@ -138,8 +147,21 @@ export default function Landing() {
       <section className="py-32 px-6 flex flex-col items-center text-center">
         <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-8">Готові до прозорого пошуку?</h2>
         <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" variant="bordered" className="font-bold border-default-200 px-8 rounded-full">Документація</Button>
-            <Button size="lg" color="primary" className="font-bold px-8 rounded-full shadow-lg shadow-primary/20">Спробувати Beta</Button>
+            <a href="https://github.com/OpenQueri" target="_blank" rel="noreferrer" className="inline-block">
+              <Button  
+                size="lg" 
+                variant="bordered" 
+                className="font-bold border-default-200 px-8 rounded-full"
+              >
+                Документація
+              </Button>
+            </a>
+
+            <Button size="lg" color="primary" className="font-bold px-8 rounded-full shadow-lg shadow-primary/20" onClick={
+              () => {
+                navigate("/");
+              }
+            }>Спробувати Beta</Button>
         </div>
       </section>
 
