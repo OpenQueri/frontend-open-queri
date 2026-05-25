@@ -50,7 +50,7 @@ login: async (credentials: any) => {
     const host = window.location.hostname;
     try {
         const response = await axios.post(
-            `http://${host}:8000/login`, 
+            `http://${host}/login`, 
             credentials, 
             { withCredentials: true } 
         );
