@@ -117,7 +117,7 @@ export function Stats() {
     }, [history, timeframe]);
 
     return (
-        <div className="w-full space-y-8 font-mono text-foreground p-2 md:p-6 transition-all duration-500">
+        <div className="w-full space-y-8 font-mono bg-background text-foreground p-2 md:p-6 transition-all duration-500">
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className="bg-default-50 dark:bg-default-50/30 border border-default-200 p-8 rounded-[2.5rem]">

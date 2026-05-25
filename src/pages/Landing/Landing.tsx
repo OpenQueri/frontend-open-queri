@@ -92,14 +92,14 @@ export default function Landing() {
 
             <div className="relative group">
               <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative bg-[#0d1117] rounded-2xl border border-white/5 p-6 font-mono text-[11px] md:text-xs shadow-2xl">
-                <div className="flex gap-1.5 mb-4">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-orange-500/20" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/20" />
+              <div className="relative bg-[#0d1117] rounded-2xl border border-white/5 p-6 font-mono text-[11px] md:text-xs shadow-2xl hidden md:block">
+                <div className="flex gap-1.5 mb-4 hidden md:block">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 hidden md:block" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-orange-500/20 hidden md:block" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 hidden md:block" />
                 </div>
-                <p className="text-blue-400 mb-2">// Підтримка 100+ мов</p>
-                <pre className="text-gray-300 leading-relaxed overflow-x-auto">
+                <p className="text-blue-400 mb-2 hidden md:block">// Підтримка 100+ мов</p>
+                <pre className="text-gray-300 leading-relaxed overflow-x-auto hidden md:block">
                   <code>{`afr, sqi, amh, ara, hye, asm, aze, eus, ben, bos,
 bre, bul, mya, cat, ceb, zho, hrv, ces, dan, nld,
 eng, epo, est, tgl, fin, fra, glg, kat, deu, ell,

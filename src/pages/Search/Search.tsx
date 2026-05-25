@@ -1,8 +1,10 @@
 import { useSearchParams } from 'react-router-dom';
 import { LiquidSearch, SearchSite } from '../../components/SearchBar/SearchBar';
-import { Picture, FileText, Magnifier } from "@gravity-ui/icons";
+import { Picture, Magnifier } from "@gravity-ui/icons";
 import { Tag, TagGroup } from "@heroui/react";
 import { ResultCard } from './components/ResultCard';
+
+import { ImageGallery, type ImageItem } from './components/ResultImageCard';
 import { GlassLogoProvider } from '../../components/Logo/GlassLogoScene';
 import { StaticLogo } from '../../components/Logo/Logo';
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -10,37 +12,31 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 export function SearchPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     
-    // Extract query from URL. Fallback to empty string if not present.
     const urlQuery = searchParams.get('query') || "";
-    
-    /** * Ref used as a guard to prevent redundant API calls. 
-     * React's StrictMode or rapid URL updates can trigger multiple effects; 
-     * this ensures we only process unique, new queries.
-     */
-    const lastProcessedQuery = useRef("");
+    const urlType = searchParams.get('type') || "default-search";
+
+    const lastProcessedSearch = useRef({ query: "", type: "" });
     
     const [results, setResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    /**
-     * core search logic.
-     * Wrapped in useCallback to maintain reference stability for the useEffect dependency array.
-     */
     const performSearch = useCallback(async (searchText: string) => {
         const trimmedQuery = searchText.trim();
         
-        // Bail early if the query is empty or identical to the last successful request.
-        if (!trimmedQuery || trimmedQuery === lastProcessedQuery.current) {
+        if (!trimmedQuery) return;
+
+        if (
+            trimmedQuery === lastProcessedSearch.current.query && 
+            urlType === lastProcessedSearch.current.type
+        ) {
             return;
         }
 
         setIsLoading(true);
-        lastProcessedQuery.current = trimmedQuery; // Lock in the current query before the async call.
+        lastProcessedSearch.current = { query: trimmedQuery, type: urlType };
 
         try {
-            const data = await SearchSite(trimmedQuery);
-            
-            // Handle variations in API response structure (direct array vs. nested object).
+            const data = await SearchSite(trimmedQuery, urlType);
             const searchResults = Array.isArray(data) ? data : (data.results || []);
             setResults(searchResults);
         } catch (error) {
@@ -49,40 +45,44 @@ export function SearchPage() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [urlType]); 
 
-    /**
-     * Primary Effect: Reactive to URL changes.
-     * This makes the URL the "Single Source of Truth." If a user shares a link 
-     * or hits the 'Back' button, the UI stays in sync.
-     */
     useEffect(() => {
         if (urlQuery) {
             performSearch(urlQuery);
         } else {
-            // Reset state if the search query is cleared from the URL.
             setResults([]);
-            lastProcessedQuery.current = "";
+            lastProcessedSearch.current = { query: "", type: "" };
         }
     }, [urlQuery, performSearch]);
 
-    /**
-     * Event handler for the search input component.
-     * Instead of triggering the search directly, we update the URL parameters.
-     * The useEffect above handles the actual data fetching.
-     */
     const handleSearch = (searchText: string) => {
-        setSearchParams({ query: searchText.trim() });
+        setSearchParams({ query: searchText.trim(), type: urlType });
     };
+
+    const handleTabChange = (keys: any) => {
+        const selected = Array.from(keys)[0] as string;
+        if (selected) {
+            setSearchParams({ query: urlQuery, type: selected });
+        }
+    };
+
+    const imageResults: ImageItem[] = results.flatMap((site, siteIndex) => {
+        if (!site.image || site.image.length === 0) return [];
+        return site.image.map((singleImgUrl: string, imgIndex: number) => ({
+            id: `${siteIndex}-${imgIndex}`,
+            title: site.title,
+            imageUrl: singleImgUrl,
+            sourceLink: site.url,
+        }));
+    });
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
-            
-            {/* Header section: Branding and Search input */}
-            <div className="flex flex-row gap-1 items-center p-5">
-                <div className="text-xl font-bold uppercase tracking-tighter dark:text-white">
-                    <GlassLogoProvider is3D={false} width={55} height={55}> 
-                        <StaticLogo size={50}/>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center p-4 sm:p-5">
+                <div className="text-xl font-bold uppercase tracking-tighter dark:text-white flex-shrink-0 self-center sm:self-auto hidden md:block">
+                    <GlassLogoProvider is3D={false} width={45} height={45}> 
+                        <StaticLogo size={40}/>
                     </GlassLogoProvider>
                 </div>
                 <div className="w-full max-w-2xl">
@@ -90,11 +90,12 @@ export function SearchPage() {
                 </div>
             </div>
 
-            {/* Navigation tags for different search categories */}
-            <div className="flex flex-row gap-4 items-center md:ml-24">
+            <div className="flex flex-row gap-4 items-center px-4 md:pl-24 mb-4">
                 <TagGroup 
                     aria-label="Search categories" 
                     selectionMode="single" 
+                    selectedKeys={[urlType]}
+                    onSelectionChange={handleTabChange} 
                     defaultSelectedKeys={["default-search"]} 
                     size="lg"
                 >
@@ -107,37 +108,35 @@ export function SearchPage() {
                             <Picture width={16} height={16} />
                             Images
                         </Tag>
-                        <Tag id="default-News">
-                            <FileText width={16} height={16} />
-                            News
-                        </Tag>
                     </TagGroup.List>
                 </TagGroup>
             </div>
 
-            {/* Results display area */}
-            <main className="flex flex-col ml-5 md:ml-24 pb-10 max-w-5xl">
+            <main className="flex flex-col px-4 md:pl-24 md:pr-4 pb-10">
                 {isLoading ? (
-                    /* Loading state with bounce animation for UX */
-                    <div className="flex items-center gap-2 p-10 text-zinc-500 animate-pulse">
+                    <div className="flex items-center gap-2 py-10 text-zinc-500 animate-pulse">
                         <div className="w-4 h-4 bg-zinc-400 rounded-full animate-bounce" />
                         <span>Searching for results...</span>
                     </div>
                 ) : results.length > 0 ? (
-                    /* Render result list if data exists */
-                    <div className="flex flex-col gap-6">
-                        {results.map((item, index) => (
-                            <ResultCard 
-                                key={index}
-                                title={item.title} 
-                                link={item.url} 
-                                index={index}
-                            />
-                        ))}
-                    </div>
+                    urlType === "default-image" ? (
+                        <div className="pt-2">
+                            <ImageGallery images={imageResults} />
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-4 sm:gap-6 max-w-5xl w-full">
+                            {results.map((item, index) => (
+                                <ResultCard 
+                                    key={index}
+                                    title={item.title} 
+                                    link={item.url} 
+                                    index={index}
+                                />
+                            ))}
+                        </div>
+                    )
                 ) : (
-                    /* Empty or initial state message */
-                    <div className="text-zinc-500 italic p-10">
+                    <div className="text-zinc-500 italic py-10">
                         {urlQuery ? "No results found for this query." : "Enter a keyword to start searching..."}
                     </div>
                 )}

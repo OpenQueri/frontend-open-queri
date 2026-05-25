@@ -34,11 +34,8 @@ export const ResultCard = ({ title, link, index }: ResponseProps) => {
     <div
       className="group relative w-full max-w-5xl 
                  p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] 
-                 /* Фон и Блюр */
                  bg-white/70 dark:bg-zinc-900/40 backdrop-blur-xl 
-                 /* Границы: темнее для светлой темы, прозрачнее для темной */
                  border border-zinc-200 dark:border-white/10 
-                 /* Тени: мягкая для светлой, глубокая для темной */
                  shadow-sm hover:shadow-md dark:shadow-none
                  transition-all duration-300
                  hover:bg-white/90 dark:hover:bg-zinc-900/60

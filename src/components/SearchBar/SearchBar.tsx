@@ -10,11 +10,14 @@ import axios from 'axios';
  * Service utility to perform the search request via API.
  * Uses axios for the GET request with text as a query parameter.
  */
-export const SearchSite = async (text: string) => {
+export const SearchSite = async (text: string, type: string = "default-search") => {
   const host = window.location.hostname; 
   try {
     const response = await axios.get(`http://${host}:8000/search`, {
-      params: { text } 
+      params: { 
+        text,
+        type 
+      } 
     });
     
     return response.data;
@@ -29,32 +32,27 @@ export const SearchSite = async (text: string) => {
 
 interface LiquidSearchProps {
   initialText?: string;
-  onSearch?: (text: string) => void; 
+  onSearch?: (text: string, type?: string) => void; 
 }
 
 /**
  * LiquidSearch Component
- * Features:
- * 1. Reactive "Glow" intensity based on typing speed.
- * 2. OCR capabilities via image upload.
- * 3. Unified search triggering (Enter key or Button click).
  */
 export const LiquidSearch = memo(({ initialText = "", onSearch }: LiquidSearchProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [query, setQuery] = useState(initialText);
-  const [isProcessing, setIsProcessing] = useState(false); // Used for OCR/API loading states
-  const [intensity, setIntensity] = useState(0); // Tracks typing "heat"
+  const [isProcessing, setIsProcessing] = useState(false); 
+  const [intensity, setIntensity] = useState(0); 
   
   const lastKeyTime = useRef<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // Sync internal state with external prop changes (e.g., URL parameter updates)
   useEffect(() => {
     setQuery(initialText);
   }, [initialText]);
 
-  // Framer Motion spring physics for the glow effect backdrop
+  // Framer Motion spring physics
   const activeIntensity = useSpring(0, { 
     stiffness: 80, 
     damping: 15,
@@ -62,20 +60,17 @@ export const LiquidSearch = memo(({ initialText = "", onSearch }: LiquidSearchPr
     restDelta: 0.01 
   });
   
-  // Map intensity values to visual style transformations
   const glowOpacity = useTransform(activeIntensity, [0, 1], [0, 0.6]);
   const glowScale = useTransform(activeIntensity, [0, 1], [0.95, 1.05]);
 
   /**
    * Input Change Handler
-   * Calculates typing speed to increase the "intensity" effect.
    */
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const now = Date.now();
     setQuery(value);
 
-    // If typing fast (less than 800ms between keys), boost intensity
     if (lastKeyTime.current !== 0) {
       const diff = now - lastKeyTime.current;
       const boost = Math.max(0, (800 - diff) / 800);
@@ -84,7 +79,7 @@ export const LiquidSearch = memo(({ initialText = "", onSearch }: LiquidSearchPr
     lastKeyTime.current = now;
   }, []);
 
-  // Intensity cooldown loop: reduces glow effect over time
+  // Intensity cooldown loop
   useEffect(() => {
     const interval = setInterval(() => {
       setIntensity((prev) => (prev > 0.01 ? prev - 0.05 : 0));
@@ -92,26 +87,22 @@ export const LiquidSearch = memo(({ initialText = "", onSearch }: LiquidSearchPr
     return () => clearInterval(interval);
   }, []);
 
-  // Synchronize intensity state with the spring animation value
   useEffect(() => {
     activeIntensity.set(intensity);
   }, [intensity, activeIntensity]);
 
   /**
    * Unified Search Action Trigger
-   * Logic:
-   * - Use onSearch callback if provided (parent handles state).
-   * - Fallback to navigate (standalone redirection).
    */
-  const handleAction = useCallback((textToSearch?: string) => {
+  const handleAction = useCallback((textToSearch?: string, forcedType?: string) => {
     const finalQuery = textToSearch || query;
     if (finalQuery.trim() && !isProcessing) {
-      setIntensity(0); // Reset visual effect on submit
+      setIntensity(0); 
       
       if (onSearch) {
-        onSearch(finalQuery.trim());
+        onSearch(finalQuery.trim(), forcedType);
       } else {
-        navigate(`/Search?query=${encodeURIComponent(finalQuery.trim())}`);
+        navigate(`/Search?query=${encodeURIComponent(finalQuery.trim())}&type=default-search`);
       }
     }
   }, [query, isProcessing, onSearch, navigate]);
@@ -151,14 +142,12 @@ export const LiquidSearch = memo(({ initialText = "", onSearch }: LiquidSearchPr
 
           {/* Action Buttons */}
           <div className="flex items-center gap-0.5">
-            {/* Show Camera if input is empty */}
             {!query && !isProcessing && (
               <Button isIconOnly variant="light" onPress={() => fileInputRef.current?.click()} className="min-w-8 h-8 text-zinc-400 rounded-full transform-gpu">
                 <Camera width={16} height={16} />
               </Button>
             )}
             
-            {/* Show Clear button if text exists */}
             {query && (
               <Button isIconOnly variant="light" onPress={() => setQuery("")} className="min-w-8 h-8 text-zinc-400 rounded-full transform-gpu">
                 <Xmark width={16} height={16} />
@@ -188,7 +177,7 @@ export const LiquidSearch = memo(({ initialText = "", onSearch }: LiquidSearchPr
               try {
                 const text = await recognizeTextFromImage(file);
                 setQuery(text);
-                handleAction(text); 
+                handleAction(text, "default-search"); 
               } catch (err) {
                 console.error("OCR recognition error:", err);
               } finally {

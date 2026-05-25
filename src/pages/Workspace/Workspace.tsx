@@ -44,10 +44,6 @@ export function WorkspacePage() {
     
     let cout_eror: number = 0; 
 
-    const toggleRole = () => {
-        setRole(prev => prev === 'admin' ? 'user' : 'admin');
-    };
-
     const [sites, setSites] = useState<TrackedSite[]>([
 
 
@@ -98,7 +94,7 @@ export function WorkspacePage() {
                             id: Date.now().toString(),
                             url: data.url.toString(),
                             status: data.status.toString(),
-                            submittedBy: "Petux".toString(),
+                            submittedBy: " ".toString(),
                             lastUpdate: data.lastUpdate.toString(),
                         };
 
@@ -203,16 +199,6 @@ export function WorkspacePage() {
 
             <div className="max-w-7xl mx-auto relative z-10 px-6 py-8">
 
-                 <div className="flex gap-3 mb-6">
-                    <Button 
-                        size="sm" 
-                        variant="bordered"
-                        onPress={toggleRole}
-                        className="text-[10px] font-black uppercase tracking-widest px-4 h-9 rounded-xl border-default-200 dark:border-white/10 text-default-500 hover:text-foreground"
-                    >
-                        Role: {role}
-                    </Button>
-                </div>
                 
                 <header className="flex justify-between items-center mb-12">
                     <div className="flex items-center gap-6">
