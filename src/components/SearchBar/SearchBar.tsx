@@ -13,7 +13,7 @@ import axios from 'axios';
 export const SearchSite = async (text: string, type: string = "default-search") => {
   const host = window.location.hostname; 
   try {
-    const response = await axios.get(`http://${host}:8000/search`, {
+    const response = await axios.get(`http://${host}/search`, {
       params: { 
         text,
         type 
