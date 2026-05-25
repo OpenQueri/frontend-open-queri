@@ -28,7 +28,7 @@ export const authService = {
   register: async (userData: any) => {
     const host = window.location.hostname;
     try {
-      const response = await axios.post(`http://${host}:8000/register`, userData);
+      const response = await axios.post(`http://${host}/register`, userData);
       
 
       if (response.data && response.data.success === false) {

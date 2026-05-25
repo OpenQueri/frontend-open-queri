@@ -52,7 +52,8 @@ export function WorkspacePage() {
     const socket = useRef<WebSocket | null>(null);
 
     useEffect(() => {
-        const ws = new WebSocket("ws://localhost:8000/workspace-ws");
+        const host = window.location.hostname;
+        const ws = new WebSocket("ws://${host}/workspace-ws");
         socket.current = ws;
 
         ws.onopen = () => {
@@ -242,7 +243,7 @@ export function WorkspacePage() {
                                 onClick={async () => { 
                                     
                                     const host = window.location.hostname;
-                                    const response = await axios.get(`http://${host}:8000/delete-sesion-token`, {
+                                    const response = await axios.get(`http://${host}/delete-sesion-token`, {
                                         withCredentials: true 
                                     });
                                     

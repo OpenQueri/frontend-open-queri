@@ -32,7 +32,7 @@ export function Stats() {
     }, []);
 
     const connectWebSocket = useCallback(() => {
-        const socket = new WebSocket(`ws://${host}:8000/stats-ws`);
+        const socket = new WebSocket(`ws://${host}/stats-ws`);
         socketRef.current = socket;
 
         socket.onmessage = (event) => {
