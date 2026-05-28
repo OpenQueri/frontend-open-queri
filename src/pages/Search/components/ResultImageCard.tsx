@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react"; // <--- Додали useMemo
 import { Copy, Check, ArrowShapeDownToLine, Xmark, FileCode } from "@gravity-ui/icons";
 import { Button } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,21 +15,65 @@ export interface ImageItem {
 
 // 1. БАТЬКІВСЬКИЙ КОМПОНЕНТ ГАЛЕРЕЇ
 export const ImageGallery = ({ images }: { images: ImageItem[] }) => {
-  const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
+const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
   const [visibleCount, setVisibleCount] = useState(20);
 
-  const visibleImages = images.slice(0, visibleCount);
-  const hasMore = visibleCount < images.length;
+
+  const mixedImages = useMemo(() => {
+    if (!images || images.length === 0) return [];
+
+ 
+    const domainOrder: string[] = [];
+    const groups: { [key: string]: ImageItem[] } = {};
+
+    images.forEach((img) => {
+      let domain = "unknown";
+      try {
+        domain = new URL(img.sourceLink).hostname;
+      } catch {
+        domain = "unknown";
+      }
+
+      if (!groups[domain]) {
+        groups[domain] = [];
+        domainOrder.push(domain); 
+      }
+      groups[domain].push(img);
+    });
+
+    domainOrder.forEach((domain) => {
+      const group = groups[domain];
+      // Тасування Фішера-Єйтса всередині одного сайту
+      for (let i = group.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [group[i], group[j]] = [group[j], group[i]];
+      }
+    });
+
+    const result: ImageItem[] = [];
+    domainOrder.forEach((domain) => {
+      result.push(...groups[domain]);
+    });
+
+    return result;
+  }, [images]);
+
+  const visibleImages = mixedImages.slice(0, visibleCount);
+  const hasMore = visibleCount < mixedImages.length;
+
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [images]);
 
   return (
-    <div className="flex w-full gap-4 items-start relative p-4 bg-zinc-50 dark:bg-zinc-950 min-h-screen">
+    <div className="flex w-full gap-4 items-start relative p-4 min-h-screen bg-background text-foreground ">
       
       {/* ЛІВА ЧАСТИНА: Сітка зображень */}
-      <div className="flex-1 flex flex-col gap-6">
+      <div className="flex-1 flex flex-col gap-6 bg-background text-foreground">
         <div 
           className={`grid gap-4 transition-all duration-300
             grid-cols-1 sm:grid-cols-2 
-            ${selectedImage ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'}`}
+            ${selectedImage ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'} bg-background text-foreground `}
         >
           {visibleImages.map((img) => (
             <ImageCard
@@ -100,7 +144,10 @@ const ImageCard = ({ data, isSelected, onClick }: { data: ImageItem, isSelected:
   const [isLoaded, setIsLoaded] = useState(false);
   const [isError, setIsError] = useState(false);
   
-  // Безпечне отримання домену
+  if (isError || !data.imageUrl || data.imageUrl.trim() === "" || data.imageUrl.includes("blank") || data.imageUrl.includes("pixel")) {
+    return null;
+  }
+
   const domain = (() => {
     try { return new URL(data.sourceLink).hostname; } 
     catch { return "unknown"; }
@@ -109,55 +156,61 @@ const ImageCard = ({ data, isSelected, onClick }: { data: ImageItem, isSelected:
   return (
     <div
       onClick={onClick}
-      className={`group flex flex-col rounded-xl p-2.5 cursor-pointer transition-all duration-300 border
+      className={`group flex flex-col rounded-xl p-2.5 cursor-pointer transition-all duration-300 border bg-background text-foreground
         ${isSelected 
           ? 'bg-zinc-100 dark:bg-zinc-800 border-zinc-400 shadow-md ring-2 ring-primary/50' 
           : 'bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-white/10 hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700'
         }`}
     >
-      {/* Контейнер зображення з фіксованим aspect-ratio */}
-      <div className="relative w-full aspect-[4/3] bg-zinc-200 dark:bg-zinc-800 rounded-lg overflow-hidden">
+      {/* Контейнер зображення з фіксованим розміром */}
+      <div className="relative w-full aspect-[4/3] bg-zinc-200 dark:bg-zinc-800 rounded-lg overflow-hidden shrink-0">
         
-        {/* Скелетон, поки вантажиться */}
-        {!isLoaded && !isError && (
-          <div className="absolute inset-0 flex items-center justify-center animate-pulse">
-            <FileCode className="size-8 text-zinc-400 dark:text-zinc-600" />
+        {/* Анімований скелетон, поки фото летить з сервера */}
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center animate-pulse bg-zinc-200 dark:bg-zinc-700">
+            <FileCode className="size-6 text-zinc-400 dark:text-zinc-500" />
           </div>
         )}
 
-        {/* Стан помилки */}
-        {isError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-900 text-zinc-400">
-            <WarningCircle className="size-8 mb-2" />
-            <span className="text-[10px]">Помилка</span>
-          </div>
-        )}
-
-        {/* Зображення */}
         <img
           src={data.imageUrl}
           alt={data.title}
           loading="lazy"
           onLoad={() => setIsLoaded(true)}
-          onError={() => setIsError(true)}
-          className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}
+          onError={() => setIsError(true)} // Якщо посилання біте — компонент перерендериться і поверне null (рядок 6)
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
         />
       </div>
 
-      {/* Футер картки */}
-      <div className="mt-3 flex items-center gap-2 overflow-hidden">
-        <img
-          src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
-          className="w-4 h-4 rounded-full shrink-0"
-          alt=""
-          onError={(e) => (e.currentTarget.style.display = 'none')}
-        />
-        <span className="text-[11px] text-zinc-500 truncate">{domain}</span>
+      {/* Нижній блок: показуємо як скелетон, поки фото вантажиться, щоб текст не блимав */}
+      <div className={`mt-3 flex flex-col gap-1 ${!isLoaded ? "animate-pulse" : ""}`}>
+        <div className="flex items-center gap-2 overflow-hidden">
+          {isLoaded ? (
+            <img
+              src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
+              className="w-4 h-4 rounded-full shrink-0"
+              alt=""
+              onError={(e) => (e.currentTarget.style.display = 'none')}
+            />
+          ) : (
+            <div className="w-4 h-4 rounded-full bg-zinc-300 dark:bg-zinc-700 shrink-0" />
+          )}
+          
+          {isLoaded ? (
+            <span className="text-[11px] text-zinc-500 truncate">{domain}</span>
+          ) : (
+            <div className="w-16 h-3 bg-zinc-300 dark:bg-zinc-700 rounded" />
+          )}
+        </div>
+        
+        {isLoaded ? (
+          <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-200 truncate mt-1">
+            {data.title}
+          </h4>
+        ) : (
+          <div className="w-full h-4 bg-zinc-300 dark:bg-zinc-700 rounded mt-1" />
+        )}
       </div>
-      
-      <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-200 truncate mt-1">
-        {data.title}
-      </h4>
     </div>
   );
 };
@@ -168,7 +221,6 @@ const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => voi
   const [isDownloading, setIsDownloading] = useState(false);
   const domain = new URL(data.sourceLink).hostname;
 
-  // Попереднє "прогрівання" кешу браузера для миттєвого відкриття
   useEffect(() => {
     const img = new Image();
     img.src = data.imageUrl;

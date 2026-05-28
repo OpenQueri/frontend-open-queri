@@ -78,9 +78,9 @@ export function SearchPage() {
     });
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center p-4 sm:p-5">
-                <div className="text-xl font-bold uppercase tracking-tighter dark:text-white flex-shrink-0 self-center sm:self-auto hidden md:block">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 transition-colors duration-300 text-foreground">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center sm:p-5 bg-background text-foreground">
+                <div className="text-xl font-bold uppercase tracking-tighter dark:text-white flex-shrink-0 self-center sm:self-auto hidden md:block bg-background text-foreground">
                     <GlassLogoProvider is3D={false} width={45} height={45}> 
                         <StaticLogo size={40}/>
                     </GlassLogoProvider>
@@ -90,7 +90,7 @@ export function SearchPage() {
                 </div>
             </div>
 
-            <div className="flex flex-row gap-4 items-center px-4 md:pl-24 mb-4">
+            <div className="flex flex-row gap-4 items-center px-4 md:pl-24  bg-background text-foreground">
                 <TagGroup 
                     aria-label="Search categories" 
                     selectionMode="single" 
@@ -112,9 +112,9 @@ export function SearchPage() {
                 </TagGroup>
             </div>
 
-            <main className="flex flex-col px-4 md:pl-24 md:pr-4 pb-10">
+            <main className="flex flex-col px-4 md:pl-24 md:pr-4 pb-10  bg-background text-foreground">
                 {isLoading ? (
-                    <div className="flex items-center gap-2 py-10 text-zinc-500 animate-pulse">
+                    <div className="flex items-center gap-2 py-10 text-zinc-500 animate-pulse bg-background text-foreground">
                         <div className="w-4 h-4 bg-zinc-400 rounded-full animate-bounce" />
                         <span>Searching for results...</span>
                     </div>
@@ -124,7 +124,7 @@ export function SearchPage() {
                             <ImageGallery images={imageResults} />
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-4 sm:gap-6 max-w-5xl w-full">
+                        <div className="flex flex-col gap-4 sm:gap-6 max-w-5xl w-full  bg-background text-foreground">
                             {results.map((item, index) => (
                                 <ResultCard 
                                     key={index}

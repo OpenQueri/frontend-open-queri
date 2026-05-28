@@ -26,9 +26,11 @@ import { useNavigate } from 'react-router-dom';
 export const authService = {
     
   register: async (userData: any) => {
-    const host = window.location.hostname;
+    const host = window.location.hostname; 
+    const port = window.location.port ? `:${window.location.port}` : '';
+
     try {
-      const response = await axios.post(`http://${host}/api/register`, userData);
+      const response = await axios.post(`http://${host}${port}/api/register`, userData);
       
 
       if (response.data && response.data.success === false) {
@@ -47,10 +49,13 @@ export const authService = {
   },
 
 login: async (credentials: any) => {
-    const host = window.location.hostname;
+
+    const host = window.location.hostname; 
+    const port = window.location.port ? `:${window.location.port}` : '';
+    
     try {
         const response = await axios.post(
-            `http://${host}/api/login`, 
+            `http://${host}${port}/api/login`, 
             credentials, 
             { withCredentials: true } 
         );

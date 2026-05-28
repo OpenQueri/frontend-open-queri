@@ -19,8 +19,10 @@ export function Stats() {
     const [timeframe, setTimeframe] = useState(5);
     const [trend, setTrend] = useState<"up" | "down" | "none">("none");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
-    const host = window.location.hostname;
+
+    const host = window.location.hostname; 
+    const port = window.location.port ? `:${window.location.port}` : '';
+
     const socketRef = useRef<WebSocket | null>(null);
 
     const clearAllData = useCallback(() => {
@@ -32,7 +34,7 @@ export function Stats() {
     }, []);
 
     const connectWebSocket = useCallback(() => {
-        const socket = new WebSocket(`ws://${host}/api/stats-ws`);
+        const socket = new WebSocket(`ws://${host}${port}/api/stats-ws`);
         socketRef.current = socket;
 
         socket.onmessage = (event) => {

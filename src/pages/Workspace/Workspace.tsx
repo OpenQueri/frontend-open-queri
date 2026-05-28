@@ -53,7 +53,8 @@ export function WorkspacePage() {
 
     useEffect(() => {
         const host = window.location.hostname;
-        const ws = new WebSocket("ws://${host}/api/workspace-ws");
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const ws = new WebSocket(`ws://${host}${port}/api/workspace-ws`);
         socket.current = ws;
 
         ws.onopen = () => {
@@ -241,9 +242,10 @@ export function WorkspacePage() {
                         <div className="relative group">
                             <button 
                                 onClick={async () => { 
-                                    
-                                    const host = window.location.hostname;
-                                    const response = await axios.get(`http://${host}/api/delete-sesion-token`, {
+                                    const host = window.location.hostname; 
+                                    const port = window.location.port ? `:${window.location.port}` : '';
+
+                                    const response = await axios.get(`http://${host}${port}/api/delete-sesion-token`, {
                                         withCredentials: true 
                                     });
                                     
