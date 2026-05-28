@@ -19,6 +19,8 @@ export const ImageGallery = ({ images }: { images: ImageItem[] }) => {
   const [visibleCount, setVisibleCount] = useState(20);
 
 
+  
+
   const validImages = useMemo(() => {
     if (!images || images.length === 0) return [];
     
