@@ -25,6 +25,8 @@ export function SearchPage() {
         
         if (!trimmedQuery) return;
 
+        
+
         if (
             trimmedQuery === lastProcessedSearch.current.query && 
             urlType === lastProcessedSearch.current.type

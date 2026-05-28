@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"; // <--- Додали useMemo
+import { useState, useEffect, useMemo } from "react";
 import { Copy, Check, ArrowShapeDownToLine, Xmark, FileCode } from "@gravity-ui/icons";
 import { Button } from "@heroui/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,18 +15,32 @@ export interface ImageItem {
 
 // 1. БАТЬКІВСЬКИЙ КОМПОНЕНТ ГАЛЕРЕЇ
 export const ImageGallery = ({ images }: { images: ImageItem[] }) => {
-const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
   const [visibleCount, setVisibleCount] = useState(20);
 
 
-  const mixedImages = useMemo(() => {
+  const validImages = useMemo(() => {
     if (!images || images.length === 0) return [];
+    
+    return images.filter(img => {
+      if (!img.imageUrl || img.imageUrl.trim() === "") return false;
+      
+      const invalidPatterns = ['blank', 'pixel', 'data:image', 'placeholder'];
+      if (invalidPatterns.some(pattern => img.imageUrl.toLowerCase().includes(pattern))) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [images]);
 
- 
+  const mixedImages = useMemo(() => {
+    if (!validImages || validImages.length === 0) return [];
+
     const domainOrder: string[] = [];
     const groups: { [key: string]: ImageItem[] } = {};
 
-    images.forEach((img) => {
+    validImages.forEach((img) => {
       let domain = "unknown";
       try {
         domain = new URL(img.sourceLink).hostname;
@@ -36,14 +50,13 @@ const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
 
       if (!groups[domain]) {
         groups[domain] = [];
-        domainOrder.push(domain); 
+        domainOrder.push(domain);
       }
       groups[domain].push(img);
     });
 
     domainOrder.forEach((domain) => {
       const group = groups[domain];
-      // Тасування Фішера-Єйтса всередині одного сайту
       for (let i = group.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [group[i], group[j]] = [group[j], group[i]];
@@ -56,7 +69,7 @@ const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
     });
 
     return result;
-  }, [images]);
+  }, [validImages]);
 
   const visibleImages = mixedImages.slice(0, visibleCount);
   const hasMore = visibleCount < mixedImages.length;
@@ -68,7 +81,6 @@ const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
   return (
     <div className="flex w-full gap-4 items-start relative p-4 min-h-screen bg-background text-foreground ">
       
-      {/* ЛІВА ЧАСТИНА: Сітка зображень */}
       <div className="flex-1 flex flex-col gap-6 bg-background text-foreground">
         <div 
           className={`grid gap-4 transition-all duration-300
@@ -85,7 +97,6 @@ const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
           ))}
         </div>
 
-        {/* Кнопка "Завантажити ще" */}
         {hasMore && (
           <div className="flex justify-center py-10">
             <Button 
@@ -99,7 +110,6 @@ const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
         )}
       </div>
 
-      {/* ПРАВА ЧАСТИНА: Бічна панель */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -117,7 +127,6 @@ const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
         )}
       </AnimatePresence>
 
-      {/* Мобільна модалка */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -138,19 +147,21 @@ const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
   );
 };
 
-
-
 const ImageCard = ({ data, isSelected, onClick }: { data: ImageItem, isSelected: boolean, onClick: () => void }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [hasError, setHasError] = useState(false);
   
-  if (isError || !data.imageUrl || data.imageUrl.trim() === "" || data.imageUrl.includes("blank") || data.imageUrl.includes("pixel")) {
+  // Якщо сталася помилка - просто повертаємо null, нічого не рендеримо
+  if (hasError) {
     return null;
   }
 
   const domain = (() => {
-    try { return new URL(data.sourceLink).hostname; } 
-    catch { return "unknown"; }
+    try { 
+      return new URL(data.sourceLink).hostname; 
+    } catch { 
+      return "unknown"; 
+    }
   })();
 
   return (
@@ -162,11 +173,9 @@ const ImageCard = ({ data, isSelected, onClick }: { data: ImageItem, isSelected:
           : 'bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-white/10 hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700'
         }`}
     >
-      {/* Контейнер зображення з фіксованим розміром */}
       <div className="relative w-full aspect-[4/3] bg-zinc-200 dark:bg-zinc-800 rounded-lg overflow-hidden shrink-0">
         
-        {/* Анімований скелетон, поки фото летить з сервера */}
-        {!isLoaded && (
+        {!isLoaded && !hasError && (
           <div className="absolute inset-0 flex items-center justify-center animate-pulse bg-zinc-200 dark:bg-zinc-700">
             <FileCode className="size-6 text-zinc-400 dark:text-zinc-500" />
           </div>
@@ -177,12 +186,11 @@ const ImageCard = ({ data, isSelected, onClick }: { data: ImageItem, isSelected:
           alt={data.title}
           loading="lazy"
           onLoad={() => setIsLoaded(true)}
-          onError={() => setIsError(true)} // Якщо посилання біте — компонент перерендериться і поверне null (рядок 6)
+          onError={() => setHasError(true)} // При помилці просто встановлюємо прапорець
           className={`w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`}
         />
       </div>
 
-      {/* Нижній блок: показуємо як скелетон, поки фото вантажиться, щоб текст не блимав */}
       <div className={`mt-3 flex flex-col gap-1 ${!isLoaded ? "animate-pulse" : ""}`}>
         <div className="flex items-center gap-2 overflow-hidden">
           {isLoaded ? (
@@ -219,12 +227,14 @@ const ImageCard = ({ data, isSelected, onClick }: { data: ImageItem, isSelected:
 const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => void }) => {
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  const domain = new URL(data.sourceLink).hostname;
-
-  useEffect(() => {
-    const img = new Image();
-    img.src = data.imageUrl;
-  }, [data.imageUrl]);
+  const [imgError, setImgError] = useState(false);
+  
+  let domain = "unknown";
+  try {
+    domain = new URL(data.sourceLink).hostname;
+  } catch {
+    domain = "unknown";
+  }
 
   const handleCopyLink = async () => {
     try {
@@ -232,7 +242,7 @@ const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => voi
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error(err);
+      console.error("Помилка копіювання:", err);
     }
   };
 
@@ -241,6 +251,7 @@ const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => voi
     setIsDownloading(true);
     try {
       const response = await fetch(data.imageUrl, { mode: 'cors' });
+      if (!response.ok) throw new Error('Помилка завантаження');
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -251,6 +262,7 @@ const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => voi
       document.body.removeChild(a);
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
+      // Якщо не вдалося завантажити через fetch - відкриваємо в новій вкладці
       window.open(data.imageUrl, '_blank');
     } finally {
       setIsDownloading(false);
@@ -259,10 +271,14 @@ const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => voi
 
   return (
     <>
-      {/* Хедер панелі */}
       <div className="p-4 border-b border-zinc-200 dark:border-white/5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} className="w-4 h-4 rounded-full" alt="" />
+          <img 
+            src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} 
+            className="w-4 h-4 rounded-full" 
+            alt=""
+            onError={(e) => (e.currentTarget.style.display = 'none')}
+          />
           <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400 truncate max-w-[200px]">{domain}</span>
         </div>
         <Button isIconOnly radius="full" variant="light" className="text-zinc-500" onClick={onClose}>
@@ -270,10 +286,22 @@ const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => voi
         </Button>
       </div>
 
-      {/* Скролл-контент панелі */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
         <div className="w-full bg-zinc-100 dark:bg-zinc-950/50 rounded-xl p-2 flex items-center justify-center border border-zinc-200 dark:border-white/5 min-h-[240px]">
-          <img src={data.imageUrl} alt={data.title} decoding="async" className="max-w-full max-h-[40vh] object-contain rounded-md shadow-sm" />
+          {!imgError ? (
+            <img 
+              src={data.imageUrl} 
+              alt={data.title} 
+              decoding="async" 
+              className="max-w-full max-h-[40vh] object-contain rounded-md shadow-sm"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="text-center text-zinc-500">
+              <FileCode className="size-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Не вдалося завантажити зображення</p>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -297,7 +325,6 @@ const SidebarContent = ({ data, onClose }: { data: ImageItem, onClose: () => voi
         </div>
 
         <hr className="border-zinc-200 dark:border-white/5" />
-
       </div>
     </>
   );
