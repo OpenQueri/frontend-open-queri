@@ -30,7 +30,7 @@ export const authService = {
     const port = window.location.port ? `:${window.location.port}` : '';
 
     try {
-      const response = await axios.post(`http://${host}${port}/api/register`, userData);
+      const response = await axios.post(`/api/register`, userData);
       
 
       if (response.data && response.data.success === false) {
@@ -55,7 +55,7 @@ login: async (credentials: any) => {
     
     try {
         const response = await axios.post(
-            `http://${host}${port}/api/login`, 
+            `/api/login`, 
             credentials, 
             { withCredentials: true } 
         );

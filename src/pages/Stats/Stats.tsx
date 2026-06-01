@@ -22,6 +22,7 @@ export function Stats() {
 
     const host = window.location.hostname; 
     const port = window.location.port ? `:${window.location.port}` : '';
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
     const socketRef = useRef<WebSocket | null>(null);
 
@@ -34,7 +35,8 @@ export function Stats() {
     }, []);
 
     const connectWebSocket = useCallback(() => {
-        const socket = new WebSocket(`ws://${host}${port}/api/stats-ws`);
+        
+        const socket = new WebSocket(`${protocol}//${host}${port}/api/stats-ws`);
         socketRef.current = socket;
 
         socket.onmessage = (event) => {

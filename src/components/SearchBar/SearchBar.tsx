@@ -14,7 +14,7 @@ export const SearchSite = async (text: string, type: string = "default-search") 
   const host = window.location.hostname; 
   const port = window.location.port ? `:${window.location.port}` : '';
   try {
-    const response = await axios.get(`http://${host}${port}/api/search`, {
+    const response = await axios.get(`/api/search`, {
       params: { 
         text,
         type 

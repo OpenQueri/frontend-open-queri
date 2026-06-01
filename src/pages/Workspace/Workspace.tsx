@@ -54,7 +54,9 @@ export function WorkspacePage() {
     useEffect(() => {
         const host = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
-        const ws = new WebSocket(`ws://${host}${port}/api/workspace-ws`);
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+        const ws = new WebSocket(`${protocol}//${host}${port}/api/workspace-ws`);
         socket.current = ws;
 
         ws.onopen = () => {
@@ -245,7 +247,7 @@ export function WorkspacePage() {
                                     const host = window.location.hostname; 
                                     const port = window.location.port ? `:${window.location.port}` : '';
 
-                                    const response = await axios.get(`http://${host}${port}/api/delete-sesion-token`, {
+                                    const response = await axios.get(`/api/delete-sesion-token`, {
                                         withCredentials: true 
                                     });
                                     
